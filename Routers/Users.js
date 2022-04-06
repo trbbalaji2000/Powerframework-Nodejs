@@ -26,8 +26,10 @@ app.post('/user',async(req,res)=>{
             email:req.body.email
         }
      const DataStore=await UserData.save()
-       jwt.sign(payload,process.env.TOKEN_SECRET,{expiresIn:'120s'},(err,token)=>{
-        if (err)  throw err
+     //  jwt.sign(payload,process.env.TOKEN_SECRET,{expiresIn:'120s'},(err,token)=>{
+        jwt.sign(payload,process.env.TOKEN_SECRET,(err,token)=>{
+         
+     if (err)  throw err
         res.send(token)
        })     
        
