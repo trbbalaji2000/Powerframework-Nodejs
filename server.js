@@ -21,7 +21,7 @@ else
 app.use(cors())
 app.use(bodyparser.json())
 app.get('/',(req,res)=>{
-    res.send("Welcome..")
+    res.sendFile("./Welcome.html",{root: __dirname })
 })
 
 app.use('/api',require('./Routers/Users'))
