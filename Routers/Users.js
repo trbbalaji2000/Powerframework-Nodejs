@@ -2,11 +2,22 @@ var app=require("express").Router()
 var UserCollection=require('../Models/User');
 var Cryptr=require("cryptr");
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-dotenv.config();
 const Auth=require("../Middleware/Auth")
-
 const cryptr = new Cryptr('myTotalySecretKey');
+
+
+app.get('/user/auth',Auth,async(req,res)=>{
+    try {
+		const user = await UserCollection.findById(req.user.id).select("-Password");
+    
+		res.json(user);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send("Server Error");
+	}
+})
+
+
 app.post('/user',async(req,res)=>{
 
 
@@ -22,34 +33,39 @@ app.post('/user',async(req,res)=>{
             Password:encrypt,
             Role:req.body.role
         })
-        const payload={
-            email:req.body.email
-        }
+        
      const DataStore=await UserData.save()
+     const payload={
+        // email:req.body.email
+        user:{
+            id:UserData.id
+        }
+    }
+
      //  jwt.sign(payload,process.env.TOKEN_SECRET,{expiresIn:'120s'},(err,token)=>{
         jwt.sign(payload,process.env.TOKEN_SECRET,(err,token)=>{
          
      if (err)  throw err
-        res.send(token)
+        res.json({ token });
+        
        })     
        
     }
     else
     {
-        res.send("Already Account Is Created")
+        res.status(400).json({ msg: "User already exists" });
     }
 
 })
 
 
-app.post('/userlogin',Auth,async(req,res)=>{
+app.post('/userlogin',async(req,res)=>{
     const {email,password}=req.body;
-//console.log(req.body.email)
     UserCollection.findOne({Email:email},(err,data)=>{
-       
+      
         if(!data)
         {
-            res.send("Email Is Not Found Please Create Account")
+            res.status(400).json({  msg: "Invalid Email Id" });
         }
         else
         {
@@ -57,11 +73,20 @@ app.post('/userlogin',Auth,async(req,res)=>{
          
             if(password!=decrypt)
             {
-                res.send("Password is MissMatch Please Check Password")
+                res.status(400).json({  msg: "Invalid Passoword"  });
             }
             else
             {
-                res.send("Welcome")
+                const payload={
+                    user:{
+                        id:data.id
+                    }
+                }
+                jwt.sign(payload,process.env.TOKEN_SECRET,(err,token)=>{
+     
+                    if (err)  throw err
+                     res.json({token})
+                      })   
             }
         
         }

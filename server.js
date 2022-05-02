@@ -1,5 +1,6 @@
 var express=require("express");
 var app=express();
+var path=require("path");
 var bodyparser=require("body-parser")
 var mongo=require("mongoose")
 var cors=require("cors");
@@ -21,13 +22,13 @@ else
 app.use(cors())
 app.use(bodyparser.json())
 app.get('/',(req,res)=>{
-    res.sendFile("./Welcome.html",{root: __dirname })
+    res.sendFile("./Welcome.html",{root: path.join(__dirname+"/Page") })
 })
-
+app.get('/demo',(req,res)=>{
+    console.log(req.body);
+    res.send(req.body)
+})
 app.use('/api',require('./Routers/Users'))
-
-
-
 app.listen(process.env.PORT,()=>{
     console.log("Server Running ON:"+process.env.PORT);
 })
