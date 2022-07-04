@@ -24,9 +24,9 @@ app.use(bodyparser.json())
 app.get('/',(req,res)=>{
     res.sendFile("./Welcome.html",{root: path.join(__dirname+"/Page") })
 })
-app.get('/demo',(req,res)=>{
-    console.log(req.body);
-    res.send(req.body)
+app.get('/apitest',(req,res)=>{
+    
+    res.json({"msg":"Api is Working...."})
 })
 app.use('/api',require('./Routers/Users'))
 app.listen(process.env.PORT,()=>{
